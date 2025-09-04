@@ -1,0 +1,1 @@
+stm32f103t8u6tr\startup_stm32f103xb.o: startup_stm32f103xb.s
