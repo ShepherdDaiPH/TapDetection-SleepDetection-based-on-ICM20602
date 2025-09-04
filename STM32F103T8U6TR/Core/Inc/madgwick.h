@@ -1,0 +1,18 @@
+#ifndef MADGWICK_H
+#define MADGWICK_H
+
+#include <stdint.h>
+
+// ??????(??)
+void Madgwick_Init(void);
+
+// Madgwick AHRS????
+// ????:
+//   gx, gy, gz:???,????/?
+//   ax, ay, az:???,???????g
+void MadgwickAHRSupdate(float gx, float gy, float gz, float ax, float ay, float az);
+
+// ???????
+void Madgwick_GetQuaternion(float *q0, float *q1, float *q2, float *q3);
+
+#endif /* MADGWICK_H */
