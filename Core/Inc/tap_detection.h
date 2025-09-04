@@ -61,7 +61,6 @@ extern AccelDirection mainDir;
 extern uint8_t dirConsistCount;
 extern uint8_t dirChangeCount;
 extern float lastAccelMag;
-extern uint8_t tapFlag;
 extern uint8_t motionFlag;
 
 // 函数声明

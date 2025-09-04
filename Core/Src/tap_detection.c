@@ -18,7 +18,6 @@ AccelDirection mainDir = DIR_UNKNOWN;
 uint8_t dirConsistCount = 0;
 uint8_t dirChangeCount = 0;
 float lastAccelMag = 0.0f;
-uint8_t tapFlag = 0;
 uint8_t motionFlag = 0;
 
 // =============== 函数实现（完全保持原逻辑）===============
@@ -129,7 +128,6 @@ void DetectTap(ICM20602_Data *data) {
             if (tapMaxAccel > tapAvgAccel * TAP_PEAK_RATIO && 
                 tapMaxAccel > TAP_ACCEL_THRESHOLD * 1.2f && 
                 accelChangeRate > SWING_SMOOTH_THRESHOLD) {
-                tapFlag = 1;
                 motionFlag = 1;
                 lastTapTime = currTime;
                 tapState = TAP_STATE_CONFIRMED;
