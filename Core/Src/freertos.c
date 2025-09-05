@@ -41,14 +41,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-uint8_t ReadRegister(uint8_t reg) {
-    uint8_t value = 0;
-    if(HAL_I2C_Mem_Read(&hi2c1, ICM20602_ADDR, reg, I2C_MEMADD_SIZE_8BIT, &value, 1, 1000) != HAL_OK) {
-        sprintf(uartBuffer, "Read reg 0x%02X failed!\r\n", reg);
-        HAL_UART_Transmit(&huart2, (uint8_t*)uartBuffer, strlen(uartBuffer), HAL_MAX_DELAY);
-    }
-    return value;
-}
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -65,7 +57,7 @@ osThreadId_t defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
   .name = "defaultTask",
   .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
+  .priority = (osPriority_t) osPriorityLow7,
 };
 /* Definitions for Testing_Task */
 osThreadId_t Testing_TaskHandle;
@@ -74,6 +66,23 @@ const osThreadAttr_t Testing_Task_attributes = {
   .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityHigh,
 };
+/* Definitions for BatteryManage */
+osThreadId_t BatteryManageHandle;
+const osThreadAttr_t BatteryManage_attributes = {
+  .name = "BatteryManage",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
+/* Definitions for SleepEnterPoint */
+osSemaphoreId_t SleepEnterPointHandle;
+const osSemaphoreAttr_t SleepEnterPoint_attributes = {
+  .name = "SleepEnterPoint"
+};
+/* Definitions for SleepExitPoint */
+osSemaphoreId_t SleepExitPointHandle;
+const osSemaphoreAttr_t SleepExitPoint_attributes = {
+  .name = "SleepExitPoint"
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -81,6 +90,7 @@ const osThreadAttr_t Testing_Task_attributes = {
 
 void StartDefaultTask(void *argument);
 void StartTask02(void *argument);
+void StartTask03(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -95,7 +105,7 @@ void vApplicationIdleHook( void )
    to 1 in FreeRTOSConfig.h. It will be called on each iteration of the idle
    task. It is essential that code added to this hook function never attempts
    to block in any way (for example, call xQueueReceive() with a block time
-   specified, or call vTaskDelay()). If the application makes use of the
+   specified, or call osDelay()). If the application makes use of the
    vTaskDelete() API function (as this demo application does) then it is also
    important that vApplicationIdleHook() is permitted to return to its calling
    function, because it is the responsibility of the idle task to clean up
@@ -114,37 +124,6 @@ void vApplicationTickHook( void )
 }
 /* USER CODE END 3 */
 
-/* USER CODE BEGIN PREPOSTSLEEP */
-__weak void PreSleepProcessing(TickType_t *xExpectedIdleTime)
-{	
-		__disable_irq();
-		HAL_SuspendTick();
-		//调节ICM20602进入低功耗模式
-		ICM20602_ENTER_LOW_POWER_MODE(&hi2c1, 0x20);
-		
-		//调节MCU进入STOP模式
-		sprintf(uartBuffer, "Before STOP\r\n");
-		HAL_UART_Transmit(&huart2, (uint8_t*)uartBuffer, strlen(uartBuffer), 100);
-
-		HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
-
-		sprintf(uartBuffer, "After STOP (should not print immediately!)\r\n");
-		HAL_UART_Transmit(&huart2, (uint8_t*)uartBuffer, strlen(uartBuffer), 100);
-		__enable_irq();
-}
-
-__weak void PostSleepProcessing(TickType_t *ulExpectedIdleTime)
-{   
-		SystemClock_Config();
-		HAL_ResumeTick();
-		sprintf(uartBuffer, "PostSleep function called!\r\n");
-		HAL_UART_Transmit(&huart2, (uint8_t*)uartBuffer, strlen(uartBuffer), 100);
-		// ICM20602退出低功耗模式
-		ICM20602_EXIT_LOW_POWER_MODE(&hi2c1);
-
-}
-/* USER CODE END PREPOSTSLEEP */
-
 /**
   * @brief  FreeRTOS initialization
   * @param  None
@@ -158,6 +137,13 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN RTOS_MUTEX */
   /* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
+
+  /* Create the semaphores(s) */
+  /* creation of SleepEnterPoint */
+  SleepEnterPointHandle = osSemaphoreNew(1, 1, &SleepEnterPoint_attributes);
+
+  /* creation of SleepExitPoint */
+  SleepExitPointHandle = osSemaphoreNew(1, 1, &SleepExitPoint_attributes);
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
@@ -177,6 +163,9 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of Testing_Task */
   Testing_TaskHandle = osThreadNew(StartTask02, NULL, &Testing_Task_attributes);
+
+  /* creation of BatteryManage */
+  BatteryManageHandle = osThreadNew(StartTask03, NULL, &BatteryManage_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -216,19 +205,82 @@ void StartDefaultTask(void *argument)
 void StartTask02(void *argument)
 {
   /* USER CODE BEGIN StartTask02 */
+  static TickType_t lastDetectTime   = 0;
+  static TickType_t lastSendTime     = 0;
+  static TickType_t lastActivityTime = 0;
 
+  lastActivityTime = xTaskGetTickCount();
   for (;;)
-  { 
-		sprintf(uartBuffer, "Testing Task!\r\n");
-    HAL_UART_Transmit(&huart2, (uint8_t*)uartBuffer, strlen(uartBuffer), HAL_MAX_DELAY);
-		uint8_t reg = 0;
-		ICM20602_ReadReg(&hi2c1, INT_ENABLE, &reg);
-		sprintf(uartBuffer, "Testing Task! INT_ENABLE=0x%02X\r\n", reg);
-		HAL_UART_Transmit(&huart2, (uint8_t*)uartBuffer, strlen(uartBuffer), HAL_MAX_DELAY);
+  {
+    TickType_t currTime = xTaskGetTickCount();
 
-		osDelay(5000);
-	}
+    // 读取ICM20602数据
+    if (ICM20602_ReadData(&hi2c1, &icm20602_Data) == HAL_OK) {
+      // 定时检测拍击
+      if (currTime - lastDetectTime >= TAP_DETECT_INTERVAL) {
+        lastDetectTime = currTime;
+        DetectTap(&icm20602_Data);
+      }
+
+      // 定时发送传感器数据
+      if (currTime - lastSendTime >= SEND_INTERVAL_MS) {
+        lastSendTime = currTime;
+        sprintf(uartBuffer, 
+                "Accel: X=%.2fg, Y=%.2fg, Z=%.2fg | "
+                "Gyro: X=%.2frad/s, Y=%.2frad/s, Z=%.2frad/s | "
+                "Temp: %.2f°C\r\n",
+                icm20602_Data.accelX, icm20602_Data.accelY, icm20602_Data.accelZ,
+                icm20602_Data.gyroX, icm20602_Data.gyroY, icm20602_Data.gyroZ,
+                icm20602_Data.temp);
+        HAL_UART_Transmit(&huart2, (uint8_t*)uartBuffer, strlen(uartBuffer), 100);
+      }
+    } else {
+      HAL_UART_Transmit(&huart2, (uint8_t*)"ICM20602 Read Err\r\n", 19, 100);
+    }
+    if(motionFlag == 1){
+        motionFlag = 0;
+        lastActivityTime = currTime; // 重置最后活动时间
+    }
+    if(currTime - lastActivityTime > 5000){ // 10分钟无运动
+      sprintf(uartBuffer, "No motion detected for 10 minutes, preparing to enter sleep mode...\r\n");
+      HAL_UART_Transmit(&huart2, (uint8_t*)uartBuffer, strlen(uartBuffer), HAL_MAX_DELAY);
+      lastActivityTime = xTaskGetTickCount(); // 避免唤醒后马上进入休眠
+			
+			osSemaphoreRelease(SleepEnterPointHandle);
+			vTaskSuspend(NULL);
+    }
+  }
   /* USER CODE END StartTask02 */
+}
+
+/* USER CODE BEGIN Header_StartTask03 */
+/**
+* @brief Function implementing the BatteryManageme thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartTask03 */
+void StartTask03(void *argument)
+{
+  /* USER CODE BEGIN StartTask03 */
+  /* Infinite loop */
+  for(;;)
+  {
+		osSemaphoreAcquire(SleepEnterPointHandle, osWaitForever);
+		
+		 // MCU 空闲时进入低功耗
+    ICM20602_ENTER_LOW_POWER_MODE(&hi2c1, 0x20);
+		
+    // 进入 SLEEP 或 STOP
+    HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+		
+    ICM20602_EXIT_LOW_POWER_MODE(&hi2c1);
+		
+		vTaskResume(Testing_TaskHandle);
+		
+    osDelay(1);
+  }
+  /* USER CODE END StartTask03 */
 }
 
 /* Private application code --------------------------------------------------*/

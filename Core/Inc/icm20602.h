@@ -123,6 +123,6 @@ void Print_Accel(ICM20602_Data *data);
 HAL_StatusTypeDef ICM20602_ENTER_LOW_POWER_MODE(I2C_HandleTypeDef *hi2c, uint8_t THRESHOLD);
 HAL_StatusTypeDef ICM20602_EXIT_LOW_POWER_MODE(I2C_HandleTypeDef *hi2c);
 SensorState ICM20602_INACTIVE_MOTION_DETECTION(ICM20602_Data *data);
-void PrintICM20602Registers(void);
+void PrintICM20602Registers(I2C_HandleTypeDef *hi2c);
 
 #endif /* __ICM20602_H */

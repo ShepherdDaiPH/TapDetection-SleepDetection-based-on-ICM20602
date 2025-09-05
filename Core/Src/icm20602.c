@@ -283,6 +283,15 @@ void MovingEstimation(ICM20602_Data *data)
   }
 }
 
+uint8_t ReadRegister(uint8_t reg, I2C_HandleTypeDef *hi2c) {
+    uint8_t value = 0;
+    if(HAL_I2C_Mem_Read(hi2c, ICM20602_ADDR, reg, I2C_MEMADD_SIZE_8BIT, &value, 1, 1000) != HAL_OK) {
+        sprintf(uartBuffer, "Read reg 0x%02X failed!\r\n", reg);
+        HAL_UART_Transmit(&huart2, (uint8_t*)uartBuffer, strlen(uartBuffer), HAL_MAX_DELAY);
+    }
+    return value;
+}
+
 /**
   * @brief  检测静止/运动
   */
@@ -303,7 +312,7 @@ SensorState ICM20602_INACTIVE_MOTION_DETECTION(ICM20602_Data *data)
   return ICM20602_SensorState;
 }
 
-void PrintICM20602Registers(void) {
+void PrintICM20602Registers(I2C_HandleTypeDef *hi2c) {
     uint8_t regs[] = {WHO_AM_I_REG, PWR_MGMT_1_REG, PWR_MGMT_2_REG, SMPLRT_DIV_REG, ACCEL_CONFIG_REG,
                       ACCEL_CONFIG2, GYRO_CONFIG_REG, INT_ENABLE, INT_STATUS, ACCEL_INTEL_CTRL,
                       ACCEL_WOM_X_THR, ACCEL_WOM_Y_THR, ACCEL_WOM_Z_THR};
@@ -312,7 +321,7 @@ void PrintICM20602Registers(void) {
                            "ACCEL_WOM_X_THR", "ACCEL_WOM_Y_THR", "ACCEL_WOM_Z_THR"};
 
     for(int i=0;i<14;i++){
-        sprintf(uartBuffer,"%s: 0x%02X\r\n", names[i], ReadRegister(regs[i]));
+        sprintf(uartBuffer,"%s: 0x%02X\r\n", names[i], ReadRegister(regs[i], hi2c));
         HAL_UART_Transmit(&huart2,(uint8_t*)uartBuffer,strlen(uartBuffer),HAL_MAX_DELAY);
     }
 }

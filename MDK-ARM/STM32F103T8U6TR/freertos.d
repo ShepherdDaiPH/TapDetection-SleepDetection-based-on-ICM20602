@@ -43,6 +43,7 @@ stm32f103t8u6tr\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTO
 stm32f103t8u6tr\freertos.o: ../Core/Inc/icm20602.h
 stm32f103t8u6tr\freertos.o: ../Core/Inc/i2c.h
 stm32f103t8u6tr\freertos.o: ../Core/Inc/tap_detection.h
+stm32f103t8u6tr\freertos.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 stm32f103t8u6tr\freertos.o: ../Core/Inc/usart.h
 stm32f103t8u6tr\freertos.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 stm32f103t8u6tr\freertos.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h

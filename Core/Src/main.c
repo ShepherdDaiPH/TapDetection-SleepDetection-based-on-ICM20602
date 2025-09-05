@@ -49,7 +49,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+/* Private variables */
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -167,7 +167,7 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-    if(GPIO_Pin == GPIO_PIN_1)  // MOTION_INT_PIN
+    if(GPIO_Pin == GPIO_PIN_0)  // MOTION_INT_PIN
     {
 				sprintf(uartBuffer, "EXTI triggered!\r\n");
 				HAL_UART_Transmit(&huart2, (uint8_t*)uartBuffer, strlen(uartBuffer), HAL_MAX_DELAY);

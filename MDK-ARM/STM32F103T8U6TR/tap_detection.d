@@ -1,5 +1,7 @@
 stm32f103t8u6tr\tap_detection.o: ..\Core\Src\tap_detection.c
 stm32f103t8u6tr\tap_detection.o: ../Core/Inc/tap_detection.h
+stm32f103t8u6tr\tap_detection.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+stm32f103t8u6tr\tap_detection.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 stm32f103t8u6tr\tap_detection.o: ../Core/Inc/icm20602.h
 stm32f103t8u6tr\tap_detection.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h
 stm32f103t8u6tr\tap_detection.o: ../Core/Inc/stm32f1xx_hal_conf.h
@@ -8,7 +10,6 @@ stm32f103t8u6tr\tap_detection.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_h
 stm32f103t8u6tr\tap_detection.o: ../Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f1xx.h
 stm32f103t8u6tr\tap_detection.o: ../Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xb.h
 stm32f103t8u6tr\tap_detection.o: ../Drivers/CMSIS/Include/core_cm3.h
-stm32f103t8u6tr\tap_detection.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 stm32f103t8u6tr\tap_detection.o: ../Drivers/CMSIS/Include/cmsis_version.h
 stm32f103t8u6tr\tap_detection.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
 stm32f103t8u6tr\tap_detection.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
@@ -32,6 +33,15 @@ stm32f103t8u6tr\tap_detection.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_h
 stm32f103t8u6tr\tap_detection.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
 stm32f103t8u6tr\tap_detection.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 stm32f103t8u6tr\tap_detection.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+stm32f103t8u6tr\tap_detection.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 stm32f103t8u6tr\tap_detection.o: ../Core/Inc/usart.h
 stm32f103t8u6tr\tap_detection.o: ../Core/Inc/main.h
-stm32f103t8u6tr\tap_detection.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+stm32f103t8u6tr\tap_detection.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
+stm32f103t8u6tr\tap_detection.o: ../Core/Inc/FreeRTOSConfig.h
+stm32f103t8u6tr\tap_detection.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
+stm32f103t8u6tr\tap_detection.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
+stm32f103t8u6tr\tap_detection.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h
+stm32f103t8u6tr\tap_detection.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM3/portmacro.h
+stm32f103t8u6tr\tap_detection.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h
+stm32f103t8u6tr\tap_detection.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
+stm32f103t8u6tr\tap_detection.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h
