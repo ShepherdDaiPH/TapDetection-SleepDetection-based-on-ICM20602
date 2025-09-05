@@ -1,0 +1,7 @@
+--target=arm-arm-none-eabi -mcpu=cortex-m3 -masm=auto  -Wa,armasm,--diag_suppress=A1950W -c
+-gdwarf-4 -Wa,armasm,--pd,"__EVAL SETA 1" -I ../Core/Inc -I ../Drivers/CMSIS/Include
+-I./RTE/_STM32F103T8U6TR
+-ID:/Keil_v5/ARM/CMSIS/6.2.0/CMSIS/Core/Include
+-ID:/Keil_v5/Keil/STM32F1xx_DFP/2.4.1/Device/Include
+-Wa,armasm,--pd,"__UVISION_VERSION SETA 543" -Wa,armasm,--pd,"STM32F10X_MD SETA 1" -Wa,armasm,--pd,"_RTE_ SETA 1"
+-o stm32f103t8u6tr/startup_stm32f103xb.o "startup_stm32f103xb.s"
