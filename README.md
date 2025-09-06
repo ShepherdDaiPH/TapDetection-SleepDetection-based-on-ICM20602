@@ -27,6 +27,8 @@ So we aborted this feature in this edition.
 We plan to figure out why it could not work and re-implement it in the future.
 The feasibility of this project was tested on September 6th. It tuned out that everything worked well without FreeRTOS.
 
+---
+
 ### Plan for future Presentation
 
 We can prepare for future presentation in the following ways:
