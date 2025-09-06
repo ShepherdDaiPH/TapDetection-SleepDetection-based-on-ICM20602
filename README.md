@@ -1,4 +1,4 @@
-# TapDetection+InactiveDetection based on ICM20602 
+9# TapDetection+InactiveDetection based on ICM20602 
 
 #### Description
 
@@ -35,3 +35,9 @@ We can prepare for future presentation in the following ways:
 1. Measure the power consumption of the MCU during active mode and inactie mode for comparison.
 2. Film the MCU when it is operating its tap detection feature.
 3. Draw various data tables and graphs.
+
+---
+
+### Update
+
+We decided to order a piece of INA219 unit to monitor MCU's power consumption.The order will be placed tomorrow.
