@@ -20,5 +20,5 @@
   ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_i2c.h \
   ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_pwr.h \
   ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_uart.h \
-  ..\Core\Inc\i2c.h ..\Core\Inc\usart.h ..\Core\Inc\gpio.h \
-  ..\Core\Inc\icm20602.h ..\Core\Inc\tap_detection.h
+  ..\Core\Inc\icm20602.h ..\Core\Inc\i2c.h ..\Core\Inc\usart.h \
+  ..\Core\Inc\gpio.h ..\Core\Inc\tap_detection.h ..\Core\Inc\ina226.h

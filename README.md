@@ -35,3 +35,9 @@ We can prepare for future presentation in the following ways:
 1. Measure the power consumption of the MCU during active mode and inactie mode for comparison.
 2. Film the MCU when it is operating its tap detection feature.
 3. Draw various data tables and graphs.
+
+---
+
+### Update
+
+We added INA226 drivers to this project for future measurement.

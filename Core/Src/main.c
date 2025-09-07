@@ -11,6 +11,7 @@
 /* USER CODE BEGIN Includes */
 #include "icm20602.h"
 #include "tap_detection.h"
+#include "ina226.h"
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -36,12 +37,15 @@
 
 /* USER CODE BEGIN PV */
 char uartBuffer[256];
+ICM20602_Data icm20602_Data;
 
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 void EnterSTOPMODE(void);
+void Print_Accel(ICM20602_Data *data);
+void Print_Power_Consumption(INA226_Data *data);
 
 /* USER CODE BEGIN PFP */
 
@@ -128,7 +132,8 @@ int main(void)
       HAL_UART_Transmit(&huart2, (uint8_t*)"ICM20602 Read Err\r\n", 19, 100);
     }
 		
-		if(motionFlag == 1){
+		uint8_t motionFlag = GetMotionFlag();
+		if(motionFlag){
 			motionFlag = 0;
 			lastActivityTime = currTime;
 		}
@@ -139,7 +144,9 @@ int main(void)
       lastActivityTime = HAL_GetTick(); // 避免唤醒后马上进入休眠
 			
 			ICM20602_ENTER_LOW_POWER_MODE(&hi2c1, 0x20);
-		
+			sprintf(uartBuffer, "Enter Low Power Mode!\r\n");
+			HAL_UART_Transmit(&huart2, (uint8_t*)uartBuffer, strlen(uartBuffer), 100);
+
 			__disable_irq();
 			
 			HAL_SuspendTick();
@@ -153,6 +160,8 @@ int main(void)
 			__enable_irq();
 		
 			ICM20602_EXIT_LOW_POWER_MODE(&hi2c1);
+			sprintf(uartBuffer, "Exit Low Power Mode!\r\n");
+			HAL_UART_Transmit(&huart2, (uint8_t*)uartBuffer, strlen(uartBuffer), 100);
 			
 			HAL_Delay(1000);
 		}
@@ -236,6 +245,49 @@ void EnterStopMode(void){
 	__enable_irq();		// 重新使能中断
   
   HAL_Delay(1000); // 等待ICM稳定
+}
+
+/**
+  * @brief  打印加速度
+  */
+void Print_Accel(ICM20602_Data *data) 
+{
+  float raw_magnitude = sqrtf(
+      data->accelX * data->accelX +
+      data->accelY * data->accelY +
+      data->accelZ * data->accelZ
+  );
+
+  sprintf(uartBuffer, "Raw:    [%6.3f, %6.3f, %6.3f] |Mag|: %.3f\r\n",
+          data->accelX, data->accelY, data->accelZ, raw_magnitude);
+  HAL_UART_Transmit(&huart2, (uint8_t*)uartBuffer, strlen(uartBuffer), 100);
+
+  sprintf(uartBuffer, "========================================\r\n");
+  HAL_UART_Transmit(&huart2, (uint8_t*)uartBuffer, strlen(uartBuffer), 100);
+}
+
+void Print_Power_Consumption(INA226_Data *data)
+{
+    sprintf(uartBuffer, "Current:          %.3f A\r\n"
+                        "Shunt Voltage:    %.3f V\r\n"
+                        "Bus Voltage:      %.3f V\r\n"
+                        "Power Consumption: %.3f W\r\n"
+                        "========================================\r\n",
+            data->current,
+            data->shunt_voltage,
+            data->bus_voltage,
+            data->power_consumption);
+
+    HAL_UART_Transmit(&huart2, (uint8_t*)uartBuffer, strlen(uartBuffer), 100);
+}
+
+uint8_t ReadRegister(uint8_t reg, I2C_HandleTypeDef *hi2c) {
+    uint8_t value = 0;
+    if(HAL_I2C_Mem_Read(hi2c, ICM20602_ADDR, reg, I2C_MEMADD_SIZE_8BIT, &value, 1, 1000) != HAL_OK) {
+        sprintf(uartBuffer, "Read reg 0x%02X failed!\r\n", reg);
+        HAL_UART_Transmit(&huart2, (uint8_t*)uartBuffer, strlen(uartBuffer), HAL_MAX_DELAY);
+    }
+    return value;
 }
 /* USER CODE END 4 */
 

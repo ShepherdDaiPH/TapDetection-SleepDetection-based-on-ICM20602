@@ -1,21 +1,14 @@
 #include "icm20602.h"
-#include <stdio.h>
-#include "usart.h"
-#include <string.h>
-#include <math.h>
 
 // 必要变量定义
-int      counter        = 0;
-uint32_t timer          = 0;
-uint32_t desired_timer  = 100;
-SystemState POWER_MODE = NORMAL_MODE;
-uint8_t low_power_mode_1    = 0x28;
-uint8_t low_power_mode_2    = 0x07;
-uint8_t normal_power_mode = 0x00;
-float init_sum_x = 0.0f;
-float init_sum_y = 0.0f;
-float init_sum_z = 0.0f;
-SensorState ICM20602_SensorState;
+static SystemState POWER_MODE = NORMAL_MODE;
+static uint8_t low_power_mode_1    = 0x28;
+static uint8_t low_power_mode_2    = 0x07;
+static uint8_t normal_power_mode = 0x00;
+static float init_sum_x = 0.0f;
+static float init_sum_y = 0.0f;
+static float init_sum_z = 0.0f;
+static SensorState ICM20602_SensorState;
 
 // 加速度计量程对应的满量程范围（g）
 #define ACCEL_FS_2G     2.0f
@@ -39,7 +32,6 @@ AccelRange current_accel_range;
 GyroRange current_gyro_range;
 
 HAL_StatusTypeDef ICM20602_WriteReg(I2C_HandleTypeDef *hi2c, uint8_t reg, uint8_t data);
-ICM20602_Data icm20602_Data;
 
 /**
   * @brief  初始化 ICM20602
@@ -183,9 +175,6 @@ HAL_StatusTypeDef ICM20602_ENTER_LOW_POWER_MODE(I2C_HandleTypeDef *hi2c, uint8_t
     // Step7: 最后进入低功耗循环模式
     if(ICM20602_WriteReg(hi2c, PWR_MGMT_1_REG, 0x28) != HAL_OK) return HAL_ERROR; // CYCLE=1
 
-    sprintf(uartBuffer, "Enter Low Power Mode!\r\n");
-    HAL_UART_Transmit(&huart2, (uint8_t*)uartBuffer, strlen(uartBuffer), 100);
-
     POWER_MODE = LOW_POWER_MODE;
 
     return HAL_OK;
@@ -223,104 +212,7 @@ HAL_StatusTypeDef ICM20602_EXIT_LOW_POWER_MODE(I2C_HandleTypeDef *hi2c)
     if(ICM20602_WriteReg(hi2c, PWR_MGMT_2_REG, 0x00) != HAL_OK) return HAL_ERROR; 
     // 0x00 表示 accel+gyro 全开
 
-    sprintf(uartBuffer, "Exit Low Power Mode!\r\n");
-    HAL_UART_Transmit(&huart2, (uint8_t*)uartBuffer, strlen(uartBuffer), 100);
-
     POWER_MODE = NORMAL_MODE;
 
     return HAL_OK;
-}
-
-
-/**
-  * @brief  打印加速度
-  */
-void Print_Accel(ICM20602_Data *data) 
-{
-  float raw_magnitude = sqrtf(
-      data->accelX * data->accelX +
-      data->accelY * data->accelY +
-      data->accelZ * data->accelZ
-  );
-
-  sprintf(uartBuffer, "Raw:    [%6.3f, %6.3f, %6.3f] |Mag|: %.3f\r\n",
-          data->accelX, data->accelY, data->accelZ, raw_magnitude);
-  HAL_UART_Transmit(&huart2, (uint8_t*)uartBuffer, strlen(uartBuffer), 100);
-
-  sprintf(uartBuffer, "========================================\r\n");
-  HAL_UART_Transmit(&huart2, (uint8_t*)uartBuffer, strlen(uartBuffer), 100);
-}
-
-/**
-  * @brief  运动状态估计
-  */
-void MovingEstimation(ICM20602_Data *data) 
-{
-  float accel_magnitude = sqrtf(
-      data->accelX * data->accelX +
-      data->accelY * data->accelY +
-      data->accelZ * data->accelZ
-  );
-
-  if (accel_magnitude < 0.90f || accel_magnitude > 1.10f) {
-      ICM20602_SensorState = IsMoving;
-  } else {
-      ICM20602_SensorState = IsResting;
-  }
-
-  switch (ICM20602_SensorState) {
-      case IsMoving:
-          counter++;
-          timer++;
-          break;
-      case IsResting:
-          counter--;
-          timer++;
-          break;
-      default:
-          break;
-  }
-}
-
-uint8_t ReadRegister(uint8_t reg, I2C_HandleTypeDef *hi2c) {
-    uint8_t value = 0;
-    if(HAL_I2C_Mem_Read(hi2c, ICM20602_ADDR, reg, I2C_MEMADD_SIZE_8BIT, &value, 1, 1000) != HAL_OK) {
-        sprintf(uartBuffer, "Read reg 0x%02X failed!\r\n", reg);
-        HAL_UART_Transmit(&huart2, (uint8_t*)uartBuffer, strlen(uartBuffer), HAL_MAX_DELAY);
-    }
-    return value;
-}
-
-/**
-  * @brief  检测静止/运动
-  */
-SensorState ICM20602_INACTIVE_MOTION_DETECTION(ICM20602_Data *data)
-{
-  float accel_magnitude = sqrtf(
-      data->accelX * data->accelX +
-      data->accelY * data->accelY +
-      data->accelZ * data->accelZ
-  );
-
-  if (accel_magnitude < 0.90f || accel_magnitude > 1.10f) {
-      ICM20602_SensorState = IsMoving;
-  }else {
-      ICM20602_SensorState = IsResting;
-  }
-  
-  return ICM20602_SensorState;
-}
-
-void PrintICM20602Registers(I2C_HandleTypeDef *hi2c) {
-    uint8_t regs[] = {WHO_AM_I_REG, PWR_MGMT_1_REG, PWR_MGMT_2_REG, SMPLRT_DIV_REG, ACCEL_CONFIG_REG,
-                      ACCEL_CONFIG2, GYRO_CONFIG_REG, INT_ENABLE, INT_STATUS, ACCEL_INTEL_CTRL,
-                      ACCEL_WOM_X_THR, ACCEL_WOM_Y_THR, ACCEL_WOM_Z_THR};
-    const char* names[] = {"WHO_AM_I","PWR_MGMT_1", "PWR_MGMT_2", "SMPLRT_DIV","ACCEL_CONFIG",
-                           "ACCEL_CONFIG2", "GYRO_CONFIG","INT_ENABLE","INT_STATUS", "ACCEL_INTEL_CTRL",
-                           "ACCEL_WOM_X_THR", "ACCEL_WOM_Y_THR", "ACCEL_WOM_Z_THR"};
-
-    for(int i=0;i<14;i++){
-        sprintf(uartBuffer,"%s: 0x%02X\r\n", names[i], ReadRegister(regs[i], hi2c));
-        HAL_UART_Transmit(&huart2,(uint8_t*)uartBuffer,strlen(uartBuffer),HAL_MAX_DELAY);
-    }
 }

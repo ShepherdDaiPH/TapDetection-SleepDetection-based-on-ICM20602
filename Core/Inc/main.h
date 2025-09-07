@@ -31,12 +31,13 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "icm20602.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
 extern char uartBuffer[];
+extern ICM20602_Data icm20602_Data;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
@@ -54,6 +55,7 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 void SystemClockConfig(void);
+
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

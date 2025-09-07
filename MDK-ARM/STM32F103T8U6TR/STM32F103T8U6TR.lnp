@@ -8,6 +8,7 @@
 ".\stm32f103t8u6tr\usart.o"
 ".\stm32f103t8u6tr\stm32f1xx_it.o"
 ".\stm32f103t8u6tr\stm32f1xx_hal_msp.o"
+".\stm32f103t8u6tr\ina226.o"
 ".\stm32f103t8u6tr\stm32f1xx_hal_gpio_ex.o"
 ".\stm32f103t8u6tr\stm32f1xx_hal_i2c.o"
 ".\stm32f103t8u6tr\stm32f1xx_hal.o"

@@ -2,21 +2,20 @@
 #include "tap_detection.h"
 #include "math.h"
 #include "string.h"
-#include "icm20602.h"
 #include "usart.h"
 #include "stdio.h"
 
-TapState tapState = TAP_STATE_IDLE;
-uint32_t lastTapTime = 0;       // 上次点击时间
-uint32_t tapStartTime = 0;      // 点击开始时间
-float tapMaxAccel = 0.0f;       // 点击过程最大加速度
-float tapAvgAccel = 0.0f;       // 点击过程平均加速度
-uint8_t accelSampleCount = 0;   // 加速度采样次数
-AccelDirection mainDir = DIR_UNKNOWN;
-uint8_t dirConsistCount = 0;    // 方向一致计数
-uint8_t dirChangeCount = 0;     // 方向变化计数
-float lastAccelMag = 0.0f;      // 上一次加速度合大小
-uint8_t motionFlag = 0;
+static TapState tapState = TAP_STATE_IDLE;
+static uint32_t lastTapTime = 0;       // 上次点击时间
+static uint32_t tapStartTime = 0;      // 点击开始时间
+static float tapMaxAccel = 0.0f;       // 点击过程最大加速度
+static float tapAvgAccel = 0.0f;       // 点击过程平均加速度
+static uint8_t accelSampleCount = 0;   // 加速度采样次数
+static AccelDirection mainDir = DIR_UNKNOWN;
+static uint8_t dirConsistCount = 0;    // 方向一致计数
+static uint8_t dirChangeCount = 0;     // 方向变化计数
+static float lastAccelMag = 0.0f;      // 上一次加速度合大小
+static uint8_t motionFlag = 0;
 
 /**
  * @brief 计算三维向量的合大小
@@ -178,5 +177,8 @@ void DetectTap(ICM20602_Data *data) {
             tapState = TAP_STATE_IDLE;
             break;
     }
+}
 
+uint8_t GetMotionFlag(void){
+		return motionFlag;
 }

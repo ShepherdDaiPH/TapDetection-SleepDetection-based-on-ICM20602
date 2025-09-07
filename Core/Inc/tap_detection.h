@@ -2,7 +2,8 @@
 #ifndef __TAP_DETECTION_H
 #define __TAP_DETECTION_H
 
-#include "icm20602.h"
+#include "stdint.h"
+#include "main.h"
 
 typedef enum {
     TAP_STATE_IDLE,        // 空闲状态
@@ -36,21 +37,10 @@ typedef enum {
 #define REBOUND_ACCEL_THRESHOLD 1.2f // 回弹判定阈值
 #define DIR_CHANGE_MIN_GAP 0.4f     // 方向变化最小幅度
 
-extern TapState tapState;
-extern uint32_t lastTapTime;       // 上次点击时间
-extern uint32_t tapStartTime;      // 点击开始时间
-extern float tapMaxAccel;       // 点击过程最大加速度
-extern float tapAvgAccel;       // 点击过程平均加速度
-extern uint8_t accelSampleCount;   // 加速度采样次数
-extern AccelDirection mainDir;
-extern uint8_t dirConsistCount;    // 方向一致计数
-extern uint8_t dirChangeCount;     // 方向变化计数
-extern float lastAccelMag;      // 上一次加速度合大小
-extern uint8_t motionFlag;
-
 void DetectTap(ICM20602_Data *data);
 float CalcVectorMag(float x, float y, float z);
 AccelDirection GetMainDirection(float x, float y, float z, AccelDirection lastDir);
 float CalcAccelChangeRate(float current, float previous);
+uint8_t GetMotionFlag(void);
 
 #endif /* __TAP_DETECTION_H */

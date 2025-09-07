@@ -58,15 +58,6 @@
 #define USER_CTRL            0x6A  // 用户控制寄存器
 
 // 必要变量定义
-extern int      counter;
-extern uint32_t timer;
-extern uint32_t desired_timer;
-extern uint8_t low_power_mode_1;
-extern uint8_t low_power_mode_2;
-extern uint8_t normal_power_mode;
-extern float init_sum_x;
-extern float init_sum_y;
-extern float init_sum_z;
 
 // 加速度计量程枚举
 typedef enum {
@@ -82,15 +73,11 @@ typedef enum{
 		NORMAL_MODE
 } SystemState;
 
-extern SystemState POWER_MODE;
-
 // 传感器状态机
 typedef enum{
 		IsMoving,
 		IsResting
 } SensorState;
-
-extern SensorState ICM20602_SensorState;
 
 // 陀螺仪量程枚举
 typedef enum {
@@ -110,18 +97,13 @@ typedef struct {
     float gyroZ;
     float temp;
 } ICM20602_Data;
-extern ICM20602_Data icm20602_Data;
 
 // 函数声明
 HAL_StatusTypeDef ICM20602_Init(I2C_HandleTypeDef *hi2c, AccelRange accelRange, GyroRange gyroRange);
 HAL_StatusTypeDef ICM20602_ReadData(I2C_HandleTypeDef *hi2c, ICM20602_Data *data);
 HAL_StatusTypeDef ICM20602_ReadReg(I2C_HandleTypeDef *hi2c, uint8_t reg, uint8_t *data);
 HAL_StatusTypeDef ICM20602_WriteReg(I2C_HandleTypeDef *hi2c, uint8_t reg, uint8_t data);
-void MovingEstimation(ICM20602_Data *data);
-void Print_Accel(ICM20602_Data *data);
 HAL_StatusTypeDef ICM20602_ENTER_LOW_POWER_MODE(I2C_HandleTypeDef *hi2c, uint8_t THRESHOLD);
 HAL_StatusTypeDef ICM20602_EXIT_LOW_POWER_MODE(I2C_HandleTypeDef *hi2c);
-SensorState ICM20602_INACTIVE_MOTION_DETECTION(ICM20602_Data *data);
-void PrintICM20602Registers(I2C_HandleTypeDef *hi2c);
 
 #endif /* __ICM20602_H */

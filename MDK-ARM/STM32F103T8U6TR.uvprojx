@@ -588,6 +588,11 @@
               <FileType>1</FileType>
               <FilePath>../Core/Src/stm32f1xx_hal_msp.c</FilePath>
             </File>
+            <File>
+              <FileName>ina226.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\ina226.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
