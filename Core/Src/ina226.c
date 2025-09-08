@@ -5,6 +5,9 @@
 #define SHUNT_VOLTAGE_LSB 0.0000025f
 #define BUS_VOLTAGE_LSB   0.00125f
 
+static const uint16_t defaultcalibration = 0x0A00;
+static const uint16_t defaultconfig = 0x4127;
+
 /**
   * @brief  写寄存器（寄存器地址 8 位，数据 16 位大端序）
   */
@@ -44,11 +47,8 @@ HAL_StatusTypeDef INA226_Init(I2C_HandleTypeDef *hi2c, Avg avg, Vbusct vbusct, V
 									| (vshct << 3)      // VSHCT
 									| (mode << 0);      // MODE
 	
-	uint16_t defaultconfig = 0x4127;
-	if(INA226_WriteReg(hi2c, CONFIG_REG, defaultconfig) != HAL_OK) return HAL_ERROR;
-	
-	uint16_t calibration = 0x0A00;
-	if(INA226_WriteReg(hi2c, CALIB_REG, calibration) != HAL_OK) return HAL_ERROR;
+	if(INA226_WriteReg(hi2c, CONFIG_REG, defaultconfig) != HAL_OK) return HAL_ERROR;	
+	if(INA226_WriteReg(hi2c, CALIB_REG, defaultcalibration) != HAL_OK) return HAL_ERROR;
 	
 	return HAL_OK;
 }

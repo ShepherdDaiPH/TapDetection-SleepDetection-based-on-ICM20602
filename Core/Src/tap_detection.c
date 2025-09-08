@@ -180,5 +180,9 @@ void DetectTap(ICM20602_Data *data) {
 }
 
 uint8_t GetMotionFlag(void){
-		return motionFlag;
+	return motionFlag;
+}
+
+void ClearMotionFlag(void){
+	motionFlag = 0;
 }

@@ -42,5 +42,6 @@ float CalcVectorMag(float x, float y, float z);
 AccelDirection GetMainDirection(float x, float y, float z, AccelDirection lastDir);
 float CalcAccelChangeRate(float current, float previous);
 uint8_t GetMotionFlag(void);
+void ClearMotionFlag(void);
 
 #endif /* __TAP_DETECTION_H */

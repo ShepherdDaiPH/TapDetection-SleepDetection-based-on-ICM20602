@@ -132,9 +132,8 @@ int main(void)
       HAL_UART_Transmit(&huart2, (uint8_t*)"ICM20602 Read Err\r\n", 19, 100);
     }
 		
-		uint8_t motionFlag = GetMotionFlag();
-		if(motionFlag){
-			motionFlag = 0;
+		if(GetMotionFlag()){
+			ClearMotionFlag();
 			lastActivityTime = currTime;
 		}
 		
@@ -162,8 +161,7 @@ int main(void)
 			ICM20602_EXIT_LOW_POWER_MODE(&hi2c1);
 			sprintf(uartBuffer, "Exit Low Power Mode!\r\n");
 			HAL_UART_Transmit(&huart2, (uint8_t*)uartBuffer, strlen(uartBuffer), 100);
-			
-			HAL_Delay(1000);
+
 		}
 
     HAL_Delay(1);
