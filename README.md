@@ -40,4 +40,4 @@ We can prepare for future presentation in the following ways:
 
 ### Update
 
-We added INA226 drivers to this project for future measurement.
+Everything OK

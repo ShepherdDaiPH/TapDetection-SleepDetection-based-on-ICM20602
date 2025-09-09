@@ -1,12 +1,8 @@
 #include "ina226.h"
 
-#define CURRENT_LSB       0.0002f
-#define POWER_LSB         0.005f
-#define SHUNT_VOLTAGE_LSB 0.0000025f
-#define BUS_VOLTAGE_LSB   0.00125f
-
 static const uint16_t defaultcalibration = 0x0A00;
 static const uint16_t defaultconfig = 0x4127;
+static const uint16_t low_power_config = 0x44FF;
 
 /**
   * @brief  写寄存器（寄存器地址 8 位，数据 16 位大端序）
@@ -81,4 +77,11 @@ HAL_StatusTypeDef INA226_ReadData(I2C_HandleTypeDef *hi2c, INA226_Data *data){
 	data->power_consumption = real_power_consumption;
 	
 	return HAL_OK;
+}
+
+/**
+ * @brief 	配置INA226为低功耗模式
+ */
+HAL_StatusTypeDef INA226_EnterLowPowerMode(I2C_HandleTypeDef *hi2c) {
+	return INA226_WriteReg(hi2c, CONFIG_REG, low_power_config);
 }

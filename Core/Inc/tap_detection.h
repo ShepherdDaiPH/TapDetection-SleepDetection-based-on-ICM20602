@@ -6,11 +6,11 @@
 #include "main.h"
 
 typedef enum {
-    TAP_STATE_IDLE,        // 空闲状态
-    TAP_STATE_POTENTIAL,   // 潜在点击状态(初步检测)
-    TAP_STATE_DIRECTION,   // 方向确认状态
-    TAP_STATE_CONFIRMED,   // 点击确认状态
-    TAP_STATE_SETTLE       // 稳定状态(防抖动)
+    TAP_STATE_IDLE,        // 空闲状�?
+    TAP_STATE_POTENTIAL,   // 潜在点击状�?(初�?��?��?)
+    TAP_STATE_DIRECTION,   // 方向�?认状�?
+    TAP_STATE_CONFIRMED,   // 点击�?认状�?
+    TAP_STATE_SETTLE       // 稳定状�?(防抖�?)
 } TapState;
 
 typedef enum {
@@ -20,22 +20,22 @@ typedef enum {
     DIR_Y_NEG,  // Y-
     DIR_Z_POS,  // Z+
     DIR_Z_NEG,  // Z-
-    DIR_UNKNOWN // 方向未知
+    DIR_UNKNOWN // 方向�?�?
 } AccelDirection;
 
-// 点击检测参数配置
-#define SEND_INTERVAL_MS     500    // 数据发送间隔
-#define TAP_DETECT_INTERVAL  5      // 点击检测间隔(5ms/次)
-#define TAP_MAX_DURATION     200    // 点击最大持续时间(200ms)
-#define TAP_ACCEL_THRESHOLD  1.8f   // 点击加速度阈值
-#define TAP_GYRO_THRESHOLD   1.0f   // 点击陀螺仪阈值
-#define TAP_PEAK_RATIO       1.05f   // 峰值/平均值比例
-#define DIR_CONSIST_COUNT    2      // 方向一致计数
-#define DIR_CHANGE_THRESHOLD 3      // 方向变化阈值
+// 点击检测参数配�?
+#define SEND_INTERVAL_MS     500    // 数据发送间�?
+#define TAP_DETECT_INTERVAL  5      // 点击检测间�?(5ms/�?)
+#define TAP_MAX_DURATION     200    // 点击最大持�?时间(200ms)
+#define TAP_ACCEL_THRESHOLD  1.8f   // 点击加速度阈�?
+#define TAP_GYRO_THRESHOLD   1.0f   // 点击陀螺仪阈�?
+#define TAP_PEAK_RATIO       1.05f   // 峰�?/平均值比�?
+#define DIR_CONSIST_COUNT    2      // 方向一致�?�数
+#define DIR_CHANGE_THRESHOLD 3      // 方向变化阈�?
 #define TAP_SETTLE_TIME      500    // 稳定时间
-#define SWING_SMOOTH_THRESHOLD 0.5f // 挥动平滑阈值
-#define REBOUND_ACCEL_THRESHOLD 1.2f // 回弹判定阈值
-#define DIR_CHANGE_MIN_GAP 0.4f     // 方向变化最小幅度
+#define SWING_SMOOTH_THRESHOLD 0.5f // 挥动平滑阈�?
+#define REBOUND_ACCEL_THRESHOLD 1.2f // 回弹判定阈�?
+#define DIR_CHANGE_MIN_GAP 0.4f     // 方向变化最小幅�?
 
 void DetectTap(ICM20602_Data *data);
 float CalcVectorMag(float x, float y, float z);

@@ -12,6 +12,11 @@
 #define CUR_REG                0x04
 #define CALIB_REG              0x05
 
+#define CURRENT_LSB       0.0002f
+#define POWER_LSB         0.005f
+#define SHUNT_VOLTAGE_LSB 0.0000025f
+#define BUS_VOLTAGE_LSB   0.00125f
+
 /* ===================== 枚举类型定义 ===================== */
 /* 平均次数 AVG */
 typedef enum {

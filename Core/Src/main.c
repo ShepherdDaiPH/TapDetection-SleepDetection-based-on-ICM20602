@@ -43,7 +43,7 @@ ICM20602_Data icm20602_Data;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-void EnterSTOPMODE(void);
+void EnterStopMode(void);
 void Print_Accel(ICM20602_Data *data);
 void Print_Power_Consumption(INA226_Data *data);
 
@@ -142,26 +142,7 @@ int main(void)
       HAL_UART_Transmit(&huart2, (uint8_t*)uartBuffer, strlen(uartBuffer), HAL_MAX_DELAY);
       lastActivityTime = HAL_GetTick(); // 避免唤醒后马上进入休眠
 			
-			ICM20602_ENTER_LOW_POWER_MODE(&hi2c1, 0x20);
-			sprintf(uartBuffer, "Enter Low Power Mode!\r\n");
-			HAL_UART_Transmit(&huart2, (uint8_t*)uartBuffer, strlen(uartBuffer), 100);
-
-			__disable_irq();
-			
-			HAL_SuspendTick();
-		
-			HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_STOPENTRY_WFI);
-		
-			HAL_ResumeTick();
-			
-			SystemClock_Config();
-			
-			__enable_irq();
-		
-			ICM20602_EXIT_LOW_POWER_MODE(&hi2c1);
-			sprintf(uartBuffer, "Exit Low Power Mode!\r\n");
-			HAL_UART_Transmit(&huart2, (uint8_t*)uartBuffer, strlen(uartBuffer), 100);
-
+			EnterStopMode();
 		}
 
     HAL_Delay(1);
@@ -221,28 +202,30 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 
 void EnterStopMode(void){
-	__disable_irq(); // 关闭中断，避免干扰
-	
-	ICM20602_ENTER_LOW_POWER_MODE(&hi2c1, 0x20); // 调整ICM进入休眠模式
-	
-	__HAL_RCC_USART2_CLK_DISABLE(); // 关闭USART2时钟
-  __HAL_RCC_I2C1_CLK_DISABLE();   // 关闭I2C1时钟
-  __HAL_RCC_GPIOA_CLK_DISABLE();  // 关闭GPIOA时钟		
+	ICM20602_ENTER_LOW_POWER_MODE(&hi2c1, 0x20);
+	sprintf(uartBuffer, "Enter Low Power Mode!\r\n");
+	HAL_UART_Transmit(&huart2, (uint8_t*)uartBuffer, strlen(uartBuffer), 100);
 			
-	HAL_SuspendTick(); // 停止SysTick中断，避免唤醒后立即进入STOP模式
+	__HAL_RCC_I2C1_CLK_DISABLE();
+
+	__disable_irq();
+			
+	HAL_SuspendTick();
 		
-	HAL_PWR_EnterSTANDBYMode(); // 进入STOP模式
-	//HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_STOPENTRY_WFI); // 进入STOP模式
+	HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_STOPENTRY_WFI);
+	//HAL_PWR_EnterSTANDBYMode();
 		
-	HAL_ResumeTick(); // 恢复SysTick中断
+	HAL_ResumeTick();
 			
-	SystemClock_Config(); // 重新配置系统时钟
-	
-	ICM20602_EXIT_LOW_POWER_MODE(&hi2c1); // 让ICM退出休眠模式
+	SystemClock_Config();
 			
-	__enable_irq();		// 重新使能中断
-  
-  HAL_Delay(1000); // 等待ICM稳定
+	__enable_irq();
+		
+	__HAL_RCC_I2C1_CLK_ENABLE();
+		
+	ICM20602_EXIT_LOW_POWER_MODE(&hi2c1);
+	sprintf(uartBuffer, "Exit Low Power Mode!\r\n");
+	HAL_UART_Transmit(&huart2, (uint8_t*)uartBuffer, strlen(uartBuffer), 100);
 }
 
 /**
